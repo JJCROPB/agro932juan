@@ -23,26 +23,26 @@ for i in *.bam; do samtools sort $i -o sorted_$i; done
 for i in sorted*.bam; do samtools index $i; done
 ###### -After doing the alignment, I proceeded to to the SNP calling utilizing samtools, a variant calling software. Fisrt I converted the BAM files to a BCF file called myraw.bcf
 ###### Samtools faidx ecoli.fasta
-samtools mpileup -g -f ecoli.fasta sorted_l1.bam sorted_l2.bam sorted_l3.bam sorted_l4.bam sorted_l5.bam sorted_l6.bam sorted_l7.bam sorted_l8.bam sorted_l9.bam sorted_l10.bam> myraw.bcf
+samtools mpileup -g -f ecoli.fasta sorted_l1.bam sorted_l2.bam sorted_l3.bam sorted_l4.bam sorted_l5.bam sorted_l6.bam sorted_l7.bam sorted_l8.bam sorted_l9.bam sorted_l10.bam> data/myraw.bcf
 ###### -After that, I did the SNP call unsing bcftools:
-###### bcftools call myraw.bcf -cv -Ob -o snps.bcf
+###### bcftools call myraw.bcf -cv -Ob -o largedata/snps.bcf
 ###### -Later, I extract the allele frequency at each position using bcftools in a file called frq.txt: 
-###### bcftools query -f '%CHROM %POS %AF1\n' snps.bcf > largedata/frq.txt
+###### bcftools query -f '%CHROM %POS %AF1\n' largedata/snps.bcf > largedata/frq.txt
 ###### -Then, I opened R to perform a calculation and get θπ:
 ###### pi <- function(n=10, p=0.1){
   return(n/(n-1)*(1-p^2-(1-p)^2))
 }
 pi(n=10, p=0.1)
 frq <- read.table("largedata/frq.txt")
-###### -Then, I generated a plot with the general allele frequency using this code:
-###### maf=frq.txt colum 3
-maf <- c(0.1, 0.1, 0.3, 0.1, 0.3, 0.2, 0.1, 0.4, 0.1, 0.1)
-sfs <- table(maf)
-barplot(sfs, col="#cdc0b0", xlab="Minor allele frequency", 
-        ylab="No. of segregating sites", 
-        cex.axis =1.5, cex.names = 1.5, cex.lab=1.5)
-###### And to save it in a graphs/Rplots.pdf:
-###### pdf plot.pdf
+###### -Then, I generated a plot with the general allele frequency and save it in a pdf file using this code:
+###### pdf(file=graphs/Rplots.pdf)
+df = read.table("largedata/frq.txt")
+maf<-df[[3]]
+    sfs <- table(maf)
+    barplot(sfs, col="#cdc0b0", xlab="Allele frequency",
+            ylab="No. of segregating sites",
+            cex.axis =1.5, cex.names = 1.5, cex.lab=1.5)
+dev.off()
 ###### 
 ###### 
 ###### 
